@@ -13,15 +13,23 @@
 
 package procfs
 
-import "fmt"
-
 type ProcNetTCP struct {
+	// The process ID.
 	PID    int
 	NetTCP []*netIPSocketLine
 }
 
-func (p Proc) NetTCP(pid int) (ProcNetTCP, error) {
-	path := fmt.Sprintf("/proc/%d/net/tcp", pid)
-	NetTCP, err := newNetTCP(path)
-	return ProcNetTCP{NetTCP: NetTCP, PID: pid}, err
+func (p Proc) NetTCP() (ProcNetTCP, error) {
+	NetTCP, err := newNetTCP(p.path("net/tcp"))
+	if err != nil {
+		return ProcNetTCP{PID: p.PID}, err
+	}
+	return ProcNetTCP{NetTCP: NetTCP, PID: p.PID}, err
+}
+func (p Proc) NetTCP6() (ProcNetTCP, error) {
+	NetTCP, err := newNetTCP(p.path("net/tcp6"))
+	if err != nil {
+		return ProcNetTCP{PID: p.PID}, err
+	}
+	return ProcNetTCP{NetTCP: NetTCP, PID: p.PID}, err
 }
