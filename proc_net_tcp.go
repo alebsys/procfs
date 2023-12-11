@@ -14,22 +14,49 @@
 package procfs
 
 type ProcNetTCP struct {
-	// The process ID.
-	PID    int
 	NetTCP []*netIPSocketLine
 }
 
-func (p Proc) NetTCP() (ProcNetTCP, error) {
-	NetTCP, err := newNetTCP(p.path("net/tcp"))
-	if err != nil {
-		return ProcNetTCP{PID: p.PID}, err
-	}
-	return ProcNetTCP{NetTCP: NetTCP, PID: p.PID}, err
+type ProcNetTCPSummary struct {
+	NetTCPSummary *NetTCPSummary
 }
-func (p Proc) NetTCP6() (ProcNetTCP, error) {
-	NetTCP, err := newNetTCP(p.path("net/tcp6"))
+
+// NetTCP returns the IPv4 kernel/networking statistics for TCP datagrams
+// read from /proc/<pid>/net/tcp.
+func (p Proc) NetTCP() (ProcNetTCP, error) {
+	netTCP, err := newNetTCP(p.path("net/tcp"))
 	if err != nil {
-		return ProcNetTCP{PID: p.PID}, err
+		return ProcNetTCP{}, err
 	}
-	return ProcNetTCP{NetTCP: NetTCP, PID: p.PID}, err
+	return ProcNetTCP{NetTCP: netTCP}, err
+}
+
+// NetTCP6 returns the IPv6 kernel/networking statistics for TCP datagrams
+// read from /proc/<pid>/net/tcp6.
+func (p Proc) NetTCP6() (ProcNetTCP, error) {
+	netTCP, err := newNetTCP(p.path("net/tcp6"))
+	if err != nil {
+		return ProcNetTCP{}, err
+	}
+	return ProcNetTCP{NetTCP: netTCP}, err
+}
+
+// NetTCPSummary returns already computed statistics like the total queue lengths
+// for TCP datagrams read from /proc/<pid>/net/tcp.
+func (p Proc) NetTCPSummary() (ProcNetTCPSummary, error) {
+	netTCPSummary, err := newNetTCPSummary(p.path("net/tcp"))
+	if err != nil {
+		return ProcNetTCPSummary{}, err
+	}
+	return ProcNetTCPSummary{NetTCPSummary: netTCPSummary}, err
+}
+
+// NetTCP6Summary returns already computed statistics like the total queue lengths
+// for TCP datagrams read from /proc/<pid>/net/tcp6.
+func (p Proc) NetTCP6Summary() (ProcNetTCPSummary, error) {
+	netTCPSummary, err := newNetTCPSummary(p.path("net/tcp6"))
+	if err != nil {
+		return ProcNetTCPSummary{}, err
+	}
+	return ProcNetTCPSummary{NetTCPSummary: netTCPSummary}, err
 }
